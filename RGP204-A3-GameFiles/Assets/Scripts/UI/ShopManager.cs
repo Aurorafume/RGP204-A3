@@ -14,7 +14,7 @@ public class ShopManager : MonoBehaviour
         shopPanelCanvasGroup = shopPanel.GetComponent<CanvasGroup>();
         if (shopPanelCanvasGroup == null)
         {
-            Debug.LogError("CanvasGroup component missing from ShopPanel GameObject. Please add it.");
+            //Debug.LogError("CanvasGroup component missing from ShopPanel GameObject. Please add it.");
             return;
         }
 
@@ -35,17 +35,17 @@ public class ShopManager : MonoBehaviour
                 if (shopPanelCollider.OverlapPoint(itemWorldPosition))
                 {
                     isPointerOver = true;
-                    Debug.Log("Pointer is over the shop panel");
+                    //Debug.Log("Pointer is over the shop panel");
                 }
                 else
                 {
                     isPointerOver = false;
-                    Debug.Log("Pointer is not over the shop panel");
+                    //Debug.Log("Pointer is not over the shop panel");
                 }
             }
             else
             {
-                Debug.LogError("Shop panel collider not found");
+                //Debug.LogError("Shop panel collider not found");
             }
         }
 
@@ -83,19 +83,19 @@ public class ShopManager : MonoBehaviour
     {
         if (other.gameObject == DragHandler.itemBeingDragged)
         {
-            Debug.Log("Pointer exited shop panel area with dragged item: " + other.gameObject.name);
+            //Debug.Log("Pointer exited shop panel area with dragged item: " + other.gameObject.name);
             isPointerOver = false;
         }
     }
 
     private IEnumerator HideShopPanelWithDelay()
     {
-        Debug.Log("Starting coroutine to hide shop panel after delay");
+        //Debug.Log("Starting coroutine to hide shop panel after delay");
         yield return new WaitForSeconds(hideDelay); // Wait for the delay
 
         if (isPointerOver && DragHandler.itemBeingDragged != null)
         {
-            Debug.Log("Hiding shop panel");
+            //Debug.Log("Hiding shop panel");
             HideShopPanel();
         }
         hideShopCoroutine = null; // Reset the coroutine reference after completion

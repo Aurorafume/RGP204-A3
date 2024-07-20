@@ -4,8 +4,11 @@ using System.Collections.Generic;
 
 public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public enum ItemType { WateringCan, Shovel, PlantSeeds, VineSeeds, Pot }
+    public ItemType itemType;
     public GameObject prefab; // Reference to the prefab
     public static GameObject itemBeingDragged;
+    public static ItemType itemTypeBeingDragged;
     private CanvasGroup canvasGroup;
     private GameObject objectsContainer;
     private RectTransform canvasRectTransform;
@@ -43,7 +46,8 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             }
 
             itemBeingDragged = Instantiate(prefab, objectsContainer.transform);
-            Debug.Log("Dragging started: " + itemBeingDragged.name);
+            itemTypeBeingDragged = itemType;
+            Debug.Log("Dragging started: " + itemBeingDragged.name + " of type " + itemTypeBeingDragged);
 
             RectTransform itemRectTransform = itemBeingDragged.GetComponent<RectTransform>();
             if (itemRectTransform != null)
@@ -76,8 +80,9 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 Vector2 anchoredPosition;
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, Input.mousePosition, eventData.pressEventCamera, out anchoredPosition);
                 itemRectTransform.anchoredPosition = anchoredPosition;
-                //Debug.Log("Dragging item to position: " + anchoredPosition);
             }
+
+            Debug.Log("Dragging item: " + itemBeingDragged.name);
         }
     }
 
@@ -90,21 +95,54 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         if (itemBeingDragged != null)
         {
-            Debug.Log("Dragging ended: " + itemBeingDragged.name);
+            Debug.Log("Dragging ended: " + itemBeingDragged.name + " of type " + itemTypeBeingDragged);
+        }
+
+        // if the item is the watering can tag "Water" and comes into contact with the plant tag "Plant" then the plant will be watered
+        if (itemTypeBeingDragged == ItemType.WateringCan)
+        {
+            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+            if (hit.collider != null && hit.collider.CompareTag("Plant"))
+            {
+                Plant plant = hit.collider.GetComponent<Plant>();
+                if (plant != null)
+                {
+                    plant.WaterPlant();
+                    // remove the dropped item from the scene
+                    Destroy(itemBeingDragged);
+                }
+            }
+        }
+
+        // if the item is the shovel tag "Shovel" and comes into contact with the plant tag "Plant" then the plant will be removed if it is withered or sold if it is mature
+        if (itemTypeBeingDragged == ItemType.Shovel)
+        {
+            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+            if (hit.collider != null && hit.collider.CompareTag("Plant"))
+            {
+                Plant plant = hit.collider.GetComponent<Plant>();
+                if (plant != null)
+                {
+                    if (plant.currentStage == GrowthStage.Withered) // Corrected this line
+                    {
+                        plant.RemovePlant();
+                        // remove the dropped item from the scene
+                        Destroy(itemBeingDragged);
+                    }
+                    else if (plant.currentStage == GrowthStage.Mature) // Corrected this line
+                    {
+                        plant.SellPlant();
+                        // remove the dropped item from the scene
+                        Destroy(itemBeingDragged);
+                    }
+                }
+            }
         }
 
         itemBeingDragged = null;
-    }
-
-    private List<RaycastResult> GetRaycastResults()
-    {
-        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current)
-        {
-            position = new Vector2(Input.mousePosition.x, Input.mousePosition.y)
-        };
-
-        List<RaycastResult> results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-        return results;
     }
 }
