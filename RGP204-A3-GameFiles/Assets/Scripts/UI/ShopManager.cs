@@ -11,18 +11,21 @@ public class ShopManager : MonoBehaviour
 
     void Start()
     {
+        // Get the CanvasGroup component from the shop panel
         shopPanelCanvasGroup = shopPanel.GetComponent<CanvasGroup>();
         if (shopPanelCanvasGroup == null)
         {
-            //Debug.LogError("CanvasGroup component missing from ShopPanel GameObject. Please add it.");
+            // CanvasGroup component missing from ShopPanel
             return;
         }
 
+        // Initially hide the shop panel
         shopPanel.SetActive(false);
     }
 
     void Update()
     {
+        // Check if an item is being dragged
         if (DragHandler.itemBeingDragged != null)
         {
             BoxCollider2D shopPanelCollider = shopPanel.GetComponent<BoxCollider2D>();
@@ -32,23 +35,12 @@ public class ShopManager : MonoBehaviour
                 Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint(itemPosition);
                 Vector2 itemWorldPosition = Camera.main.ScreenToWorldPoint(itemScreenPosition);
 
-                if (shopPanelCollider.OverlapPoint(itemWorldPosition))
-                {
-                    isPointerOver = true;
-                    //Debug.Log("Pointer is over the shop panel");
-                }
-                else
-                {
-                    isPointerOver = false;
-                    //Debug.Log("Pointer is not over the shop panel");
-                }
-            }
-            else
-            {
-                //Debug.LogError("Shop panel collider not found");
+                // Check if the dragged item is over the shop panel
+                isPointerOver = shopPanelCollider.OverlapPoint(itemWorldPosition);
             }
         }
 
+        // Start or stop the coroutine based on whether the item is over the shop panel
         if (DragHandler.itemBeingDragged != null && isPointerOver && hideShopCoroutine == null)
         {
             hideShopCoroutine = StartCoroutine(HideShopPanelWithDelay());
@@ -61,6 +53,7 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    // Toggle the visibility of the shop panel
     public void ToggleShop()
     {
         if (DragHandler.itemBeingDragged == null)
@@ -69,38 +62,28 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    // private void OnTriggerEnter2D(Collider2D other)
-    // {
-    //     Debug.Log("Pointer entered a collider: " + other.gameObject.name);
-    //     if (DragHandler.itemBeingDragged != null && other.gameObject == DragHandler.itemBeingDragged)
-    //     {
-    //         Debug.Log("Pointer entered shop panel area with dragged item: " + other.gameObject.name);
-    //         isPointerOver = true;
-    //     }
-    // }
-
+    // Handle when the pointer exits the shop panel area
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.gameObject == DragHandler.itemBeingDragged)
         {
-            //Debug.Log("Pointer exited shop panel area with dragged item: " + other.gameObject.name);
             isPointerOver = false;
         }
     }
 
+    // Coroutine to hide the shop panel after a delay
     private IEnumerator HideShopPanelWithDelay()
     {
-        //Debug.Log("Starting coroutine to hide shop panel after delay");
         yield return new WaitForSeconds(hideDelay); // Wait for the delay
 
         if (isPointerOver && DragHandler.itemBeingDragged != null)
         {
-            //Debug.Log("Hiding shop panel");
             HideShopPanel();
         }
         hideShopCoroutine = null; // Reset the coroutine reference after completion
     }
 
+    // Hide the shop panel
     private void HideShopPanel()
     {
         shopPanel.SetActive(false);
@@ -110,6 +93,7 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    // Show the shop panel
     private void ShowShopPanel()
     {
         shopPanel.SetActive(true);

@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class WateringCan : MonoBehaviour
 {
+    // Water the plant
     public void WaterPlant(Plant plant)
     {
-        Debug.Log("Watering can used to water plant.");
         plant.WaterPlant();
     }
 }

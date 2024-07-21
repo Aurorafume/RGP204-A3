@@ -9,11 +9,12 @@ public class PauseMenu : MonoBehaviour
 
     private void Start()
     {
-        pauseMenuUI.SetActive(false);
+        pauseMenuUI.SetActive(false); // Ensure the pause menu is hidden at start
     }
 
     void Update()
     {
+        // Toggle pause menu with the Escape key
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (GameIsPaused)
@@ -27,6 +28,7 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
+    // Resume the game
     public void Resume()
     {
         pauseMenuUI.SetActive(false);
@@ -34,6 +36,7 @@ public class PauseMenu : MonoBehaviour
         GameIsPaused = false;
     }
 
+    // Pause the game
     public void Pause()
     {
         pauseMenuUI.SetActive(true);
@@ -41,12 +44,14 @@ public class PauseMenu : MonoBehaviour
         GameIsPaused = true;
     }
 
+    // Load the main menu
     public void LoadMenu()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("Menu");
     }
 
+    // Exit the application
     public void ExitGame()
     {
         Application.Quit();
