@@ -7,6 +7,12 @@ TagManager:
   - DropArea
   - Water
   - Plant
+  - Drop Area
+  - VinePot
+  - Pot
+  - Seed
+  - VineSeed
+  - Shovel
   layers:
   - Default
   - TransparentFX

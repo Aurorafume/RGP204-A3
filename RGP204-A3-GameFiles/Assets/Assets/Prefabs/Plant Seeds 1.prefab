@@ -15,9 +15,11 @@ GameObject:
   - component: {fileID: 3035377321201615967}
   - component: {fileID: -3919129823817719488}
   - component: {fileID: -8397802304370200917}
+  - component: {fileID: 6010841084378588333}
+  - component: {fileID: -4199740131072365554}
   m_Layer: 5
   m_Name: Plant Seeds 1
-  m_TagString: Untagged
+  m_TagString: Seed
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -103,6 +105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 900a940b8a25a77478724a1db99db054, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemType: 0
   prefab: {fileID: 8128415369778357591}
 --- !u!225 &-3919129823817719488
 CanvasGroup:
@@ -151,13 +154,133 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5, y: 5}
+    newSize: {x: 5, y: 5}
+    adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
   m_Size: {x: 90, y: 90}
   m_EdgeRadius: 0
+--- !u!114 &6010841084378588333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8128415369778357591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a0f43cbeefec444fbfe690d920d824c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seedType: 1
+  currentStage: 0
+  normalSeedling1: {fileID: 21300000, guid: c9f5eec21f884564a9c62e3d716a6e28, type: 3}
+  normalFirstGrowth1: {fileID: 21300000, guid: 86c8c8f037466e24b9bb5a273030df5e, type: 3}
+  normalSecondGrowth1: {fileID: 21300000, guid: 934d309f8c2009f4096af65c9e4814d8, type: 3}
+  normalMature1: {fileID: 21300000, guid: 6c07e0e9890c4d249aeca20ca0364b2a, type: 3}
+  normalSeedlingWithered1: {fileID: 21300000, guid: 9fc14f088bd31ce4e9046cd2fa624bde, type: 3}
+  normalFirstGrowthWithered1: {fileID: 21300000, guid: d46c8f528887b2241959e216e2e32801, type: 3}
+  normalSecondGrowthWithered1: {fileID: 21300000, guid: e5a839eb31ec78545850eeaf0fc1c089, type: 3}
+  normalSeedling2: {fileID: 21300000, guid: 4d4e639ca1df3e44cb128e1d02f274a5, type: 3}
+  normalFirstGrowth2: {fileID: 21300000, guid: fb42f00b2db469c43ade6c367b2ac478, type: 3}
+  normalSecondGrowth2: {fileID: 21300000, guid: 1a884eb2e92705f488e600c96593fffa, type: 3}
+  normalMature2: {fileID: 21300000, guid: 82726c12fe0208f4eb422298274b0cd1, type: 3}
+  normalSeedlingWithered2: {fileID: 21300000, guid: 27df448adc6528348810357222614392, type: 3}
+  normalFirstGrowthWithered2: {fileID: 21300000, guid: 9d1d61a5aa62e7844a36747e82d5b00c, type: 3}
+  normalSecondGrowthWithered2: {fileID: 21300000, guid: 95b848ce29b514e43b4b7d00eab74346, type: 3}
+  normalSeedling3: {fileID: 21300000, guid: 8516a2fc9d7b0f84ea76561270a594d2, type: 3}
+  normalFirstGrowth3: {fileID: 21300000, guid: 9ef3cbddb9de0724a8327347d8cde6fc, type: 3}
+  normalSecondGrowth3: {fileID: 21300000, guid: 885131410333b6440b647ac82d5c20fd, type: 3}
+  normalMature3: {fileID: 21300000, guid: 5f36a3e6f8ec90f4480dfe4cc4a82961, type: 3}
+  normalSeedlingWithered3: {fileID: 21300000, guid: a950adb453c8d1a4d88a14535d46cf5e, type: 3}
+  normalFirstGrowthWithered3: {fileID: 21300000, guid: 47e764a5f12a17e4081b2b33f6486968, type: 3}
+  normalSecondGrowthWithered3: {fileID: 21300000, guid: ec10ee61b678b7248b7fc9351828c64a, type: 3}
+  normalSeedling4: {fileID: 21300000, guid: efff478ac89848a48a72dc7b32d1d386, type: 3}
+  normalFirstGrowth4: {fileID: 21300000, guid: 27a0f42a38c76a94583f62cb7ea95c80, type: 3}
+  normalSecondGrowth4: {fileID: 21300000, guid: 4026c96979901d84892cd424c400c745, type: 3}
+  normalMature4: {fileID: 21300000, guid: 085d2815201122e489111dffca8d29b6, type: 3}
+  normalSeedlingWithered4: {fileID: 21300000, guid: 6abcf5fee0851404ba73f188313e924a, type: 3}
+  normalFirstGrowthWithered4: {fileID: 21300000, guid: 2cef0f9b06556ec448f784e71a1e79da, type: 3}
+  normalSecondGrowthWithered4: {fileID: 21300000, guid: daee5c66e2cc6284eac9ef630a11b2b5, type: 3}
+  normalSeedling5: {fileID: 21300000, guid: ab42a090b8e11f841915efa1bb2c234d, type: 3}
+  normalFirstGrowth5: {fileID: 21300000, guid: fb939c5016792f74b89d4d5fbbec24d1, type: 3}
+  normalSecondGrowth5: {fileID: 21300000, guid: 51344a9c98113b3428d3d5b1287deca2, type: 3}
+  normalMature5: {fileID: 21300000, guid: 78e5200ce45e2af49bea86a286c48ae9, type: 3}
+  normalSeedlingWithered5: {fileID: 21300000, guid: 42025e82e7cf87641b1129ff5191ef7d, type: 3}
+  normalFirstGrowthWithered5: {fileID: 21300000, guid: 038a5e6d858d46f4aa69e4e14daf313a, type: 3}
+  normalSecondGrowthWithered5: {fileID: 21300000, guid: 8cf6b9232a5c2804b886827ae7b82099, type: 3}
+  vineSeedling1: {fileID: 21300000, guid: 3affaf28f26321842af5a44f39f82949, type: 3}
+  vineFirstGrowth1: {fileID: 21300000, guid: 0e93d890278b1d54fa20d941fd57f699, type: 3}
+  vineSecondGrowth1: {fileID: 21300000, guid: 4e4885c021bd9dc43a75209458b9bb9a, type: 3}
+  vineMature1: {fileID: 21300000, guid: 652a4c5cdf7792140a9beee2169fc06f, type: 3}
+  vineSeedlingWithered1: {fileID: 21300000, guid: 269a7fef7c848a649b2f4bad7f89577e, type: 3}
+  vineFirstGrowthWithered1: {fileID: 21300000, guid: 70bd6a359f76d50469f000b77790a755, type: 3}
+  vineSecondGrowthWithered1: {fileID: 21300000, guid: e420d7f8f65a4c34bbe4856eab2c7a55, type: 3}
+  vineSeedling2: {fileID: 21300000, guid: d8e683c847ffaa64182624edc956425c, type: 3}
+  vineFirstGrowth2: {fileID: 21300000, guid: f88e5ff4eb2bcd2438626ed8d0679367, type: 3}
+  vineSecondGrowth2: {fileID: 21300000, guid: faaedb08a33d7e0408e2cfec855ae6b6, type: 3}
+  vineMature2: {fileID: 21300000, guid: f9d8de68a4b669c47835237559b0feeb, type: 3}
+  vineSeedlingWithered2: {fileID: 21300000, guid: 9a197c7db9ba9884eb6d2164bc30675d, type: 3}
+  vineFirstGrowthWithered2: {fileID: 21300000, guid: 9796ed66bb5bea441944ba7748d24d3c, type: 3}
+  vineSecondGrowthWithered2: {fileID: 21300000, guid: 6667b7c9a9feb794bb740ef8cfed8eb3, type: 3}
+  seedlingSprite: {fileID: 21300000, guid: 959c81fef4736544293b606a47f501b5, type: 3}
+  seedlingWitheredSprite: {fileID: 21300000, guid: c73faeb54582127488c916d35dc0dd97, type: 3}
+  timeBetweenStages: 10
+  sellPrice: 25
+  isPlanted: 0
+--- !u!212 &-4199740131072365554
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8128415369778357591}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 959c81fef4736544293b606a47f501b5, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 5, y: 5}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0

@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -13,60 +13,81 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private GameObject objectsContainer;
     private RectTransform canvasRectTransform;
 
+    private EconomyManager economyManager;
+
     void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
 
         objectsContainer = GameObject.Find("-Objects-");
-        if (objectsContainer == null)
-        {
-            Debug.LogError("Objects container not found! Please create an empty GameObject named '-Objects-' in the scene.");
-        }
-
         Canvas parentCanvas = GetComponentInParent<Canvas>();
         if (parentCanvas != null)
         {
             canvasRectTransform = parentCanvas.GetComponent<RectTransform>();
         }
 
-        if (canvasRectTransform == null)
-        {
-            Debug.LogError("Canvas RectTransform not found! Please ensure this script is attached to a UI element within a Canvas.");
-        }
+        // Find the EconomyManager in the scene
+        economyManager = GameObject.FindObjectOfType<EconomyManager>();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (prefab != null)
+        if (prefab != null && economyManager != null)
         {
-            if (canvasRectTransform == null || objectsContainer == null)
+            // Check if the item is PlantSeeds or VineSeeds and if the player can afford it
+            if ((itemType == ItemType.PlantSeeds || itemType == ItemType.VineSeeds) && economyManager.CanAfford(10))
             {
-                Debug.LogError("Missing references. Cannot proceed with dragging.");
-                return;
+                economyManager.SubtractMoney(10); // Deduct $10 when seeds are purchased
+
+                if (canvasRectTransform == null || objectsContainer == null)
+                {
+                    return;
+                }
+
+                itemBeingDragged = Instantiate(prefab, objectsContainer.transform);
+                itemBeingDragged.tag = "Seed"; // Set the tag to "Seed"
+                itemTypeBeingDragged = itemType;
+
+                RectTransform itemRectTransform = itemBeingDragged.GetComponent<RectTransform>();
+                if (itemRectTransform != null)
+                {
+                    Vector2 anchoredPosition;
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, Input.mousePosition, eventData.pressEventCamera, out anchoredPosition);
+                    itemRectTransform.anchoredPosition = anchoredPosition;
+
+                    itemRectTransform.localPosition = new Vector3(itemRectTransform.localPosition.x, itemRectTransform.localPosition.y, 0);
+
+                    itemRectTransform.localScale = Vector3.one;
+                    itemRectTransform.sizeDelta = new Vector2(100, 100); // Adjust size as necessary
+                }
+
+                canvasGroup.blocksRaycasts = false;
             }
-
-            itemBeingDragged = Instantiate(prefab, objectsContainer.transform);
-            itemTypeBeingDragged = itemType;
-            Debug.Log("Dragging started: " + itemBeingDragged.name + " of type " + itemTypeBeingDragged);
-
-            RectTransform itemRectTransform = itemBeingDragged.GetComponent<RectTransform>();
-            if (itemRectTransform != null)
+            else if (itemType != ItemType.PlantSeeds && itemType != ItemType.VineSeeds)
             {
-                Vector2 anchoredPosition;
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, Input.mousePosition, eventData.pressEventCamera, out anchoredPosition);
-                itemRectTransform.anchoredPosition = anchoredPosition;
+                if (canvasRectTransform == null || objectsContainer == null)
+                {
+                    return;
+                }
 
-                itemRectTransform.localPosition = new Vector3(itemRectTransform.localPosition.x, itemRectTransform.localPosition.y, 0);
+                itemBeingDragged = Instantiate(prefab, objectsContainer.transform);
+                itemTypeBeingDragged = itemType;
 
-                itemRectTransform.localScale = Vector3.one;
-                itemRectTransform.sizeDelta = new Vector2(100, 100); // Adjust size as necessary
+                RectTransform itemRectTransform = itemBeingDragged.GetComponent<RectTransform>();
+                if (itemRectTransform != null)
+                {
+                    Vector2 anchoredPosition;
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, Input.mousePosition, eventData.pressEventCamera, out anchoredPosition);
+                    itemRectTransform.anchoredPosition = anchoredPosition;
+
+                    itemRectTransform.localPosition = new Vector3(itemRectTransform.localPosition.x, itemRectTransform.localPosition.y, 0);
+
+                    itemRectTransform.localScale = Vector3.one;
+                    itemRectTransform.sizeDelta = new Vector2(100, 100); // Adjust size as necessary
+                }
+
+                canvasGroup.blocksRaycasts = false;
             }
-
-            canvasGroup.blocksRaycasts = false;
-        }
-        else
-        {
-            Debug.LogError("Prefab is not assigned in the DragHandler script.");
         }
     }
 
@@ -81,8 +102,6 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, Input.mousePosition, eventData.pressEventCamera, out anchoredPosition);
                 itemRectTransform.anchoredPosition = anchoredPosition;
             }
-
-            Debug.Log("Dragging item: " + itemBeingDragged.name);
         }
     }
 
@@ -95,54 +114,110 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         if (itemBeingDragged != null)
         {
-            Debug.Log("Dragging ended: " + itemBeingDragged.name + " of type " + itemTypeBeingDragged);
-        }
-
-        // if the item is the watering can tag "Water" and comes into contact with the plant tag "Plant" then the plant will be watered
-        if (itemTypeBeingDragged == ItemType.WateringCan)
-        {
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
-
-            if (hit.collider != null && hit.collider.CompareTag("Plant"))
+            // Handle seed placement in pots
+            if (itemTypeBeingDragged == ItemType.PlantSeeds || itemTypeBeingDragged == ItemType.VineSeeds)
             {
-                Plant plant = hit.collider.GetComponent<Plant>();
-                if (plant != null)
+                Vector2 itemPosition = itemBeingDragged.transform.position;
+                float detectionRadius = 1.0f; // Adjust this radius as necessary
+                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(itemPosition, detectionRadius);
+
+                bool seedPlaced = false;
+
+                foreach (Collider2D collider in hitColliders)
                 {
-                    plant.WaterPlant();
-                    // remove the dropped item from the scene
+                    Plant plant = itemBeingDragged.GetComponent<Plant>();
+
+                    if (itemTypeBeingDragged == ItemType.PlantSeeds && collider.CompareTag("Pot"))
+                    {
+                        if (plant != null)
+                        {
+                            plant.seedType = SeedType.Normal;
+                            plant.isPlanted = true;
+                            plant.SetImageForCurrentStage();
+                            SnapToPot(itemBeingDragged.transform, collider);
+                            seedPlaced = true;
+                            break;
+                        }
+                    }
+                    else if (itemTypeBeingDragged == ItemType.VineSeeds && collider.CompareTag("VinePot"))
+                    {
+                        if (plant != null)
+                        {
+                            plant.seedType = SeedType.Vine;
+                            plant.isPlanted = true;
+                            plant.SetImageForCurrentStage();
+                            SnapToPot(itemBeingDragged.transform, collider);
+                            seedPlaced = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!seedPlaced)
+                {
                     Destroy(itemBeingDragged);
                 }
             }
-        }
-
-        // if the item is the shovel tag "Shovel" and comes into contact with the plant tag "Plant" then the plant will be removed if it is withered or sold if it is mature
-        if (itemTypeBeingDragged == ItemType.Shovel)
-        {
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
-
-            if (hit.collider != null && hit.collider.CompareTag("Plant"))
+            else if (itemTypeBeingDragged == ItemType.WateringCan)
             {
-                Plant plant = hit.collider.GetComponent<Plant>();
-                if (plant != null)
+                Vector2 itemPosition = itemBeingDragged.transform.position;
+                float detectionRadius = 1.0f; // Adjust this radius as necessary
+                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(itemPosition, detectionRadius);
+
+                foreach (Collider2D collider in hitColliders)
                 {
-                    if (plant.currentStage == GrowthStage.Withered) // Corrected this line
+                    Plant plant = collider.GetComponent<Plant>();
+
+                    if (plant != null)
                     {
-                        plant.RemovePlant();
-                        // remove the dropped item from the scene
+                        plant.WaterPlant();
+                        // Destroy the watering can after use
                         Destroy(itemBeingDragged);
                     }
-                    else if (plant.currentStage == GrowthStage.Mature) // Corrected this line
-                    {
-                        plant.SellPlant();
-                        // remove the dropped item from the scene
-                        Destroy(itemBeingDragged);
-                    }
+
+                    Destroy(itemBeingDragged);
                 }
             }
-        }
+            else if (itemTypeBeingDragged == ItemType.Shovel)
+            {
+                Vector2 itemPosition = itemBeingDragged.transform.position;
+                float detectionRadius = 1.0f; // Adjust this radius as necessary
+                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(itemPosition, detectionRadius);
 
-        itemBeingDragged = null;
+                foreach (Collider2D collider in hitColliders)
+                {
+                    Plant plant = collider.GetComponent<Plant>();
+                    
+                    // If the plant is mature, sell it
+                    if (plant != null && plant.currentStage == GrowthStage.Mature)
+                    {
+                        plant.SellPlant();
+                        Destroy(itemBeingDragged);
+                    }
+                    else if (plant != null)
+                    {
+                        plant.RemovePlant();
+                        Destroy(itemBeingDragged);
+                    }
+
+                    Destroy(itemBeingDragged);
+                }
+            }
+            else
+            {
+                Destroy(itemBeingDragged);
+            }
+
+            itemBeingDragged = null;
+        }
     }
+
+    // Snap the seed to the pot's position
+    private void SnapToPot(Transform seedTransform, Collider2D potCollider)
+    {
+        float offsetY = potCollider.bounds.size.y / 2; // Calculate the offset to position at the top
+        seedTransform.position = new Vector3(potCollider.bounds.center.x, potCollider.bounds.max.y + offsetY, seedTransform.position.z);
+        seedTransform.SetParent(GameObject.Find("-Objects-").transform); // Set the plant under the "-Objects-" gameobject
+    }
+
 }
