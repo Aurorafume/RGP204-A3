@@ -203,6 +203,37 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                     Destroy(itemBeingDragged);
                 }
             }
+            else if (itemTypeBeingDragged == ItemType.Pot)
+            {
+                Vector2 itemPosition = itemBeingDragged.transform.position;
+                float detectionRadius = 0.5f; // Adjust this radius to be smaller and more precise
+                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(itemPosition, detectionRadius);
+
+                bool potPlaced = false;
+
+                foreach (Collider2D collider in hitColliders)
+                {
+                    HiddenPot hiddenPot = collider.GetComponent<HiddenPot>();
+
+                    if (hiddenPot != null)
+                    {
+                        // Show the hidden pot
+                        hiddenPot.ShowPot();
+
+                        // Destroy the dragged pot (from the shop) since it is now replaced by the scene pot
+                        Destroy(itemBeingDragged);
+
+                        potPlaced = true;
+                        break;
+                    }
+                }
+
+                if (!potPlaced)
+                {
+                    // If no valid hidden pot was found, return the dragged pot back to its original position or destroy it.
+                    Destroy(itemBeingDragged); // Or reset its position if you want to allow re-dragging
+                }
+            }
             else
             {
                 Destroy(itemBeingDragged);

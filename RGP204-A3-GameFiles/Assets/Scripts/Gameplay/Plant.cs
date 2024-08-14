@@ -31,6 +31,7 @@ public class Plant : MonoBehaviour
     private float lastWatered;
     private bool isWatered;
     public int sellPrice = 25;
+    public int plantingCost = 10;
 
     private Image imageComponent;
 
