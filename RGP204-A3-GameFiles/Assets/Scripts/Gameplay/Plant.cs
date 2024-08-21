@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public enum GrowthStage { Seedling, FirstGrowth, SecondGrowth, Mature, Withered }
 public enum SeedType { None, Normal, Vine }
@@ -16,7 +17,7 @@ public class Plant : MonoBehaviour
     public Sprite normalSeedling3, normalFirstGrowth3, normalSecondGrowth3, normalMature3, normalSeedlingWithered3, normalFirstGrowthWithered3, normalSecondGrowthWithered3;
     public Sprite normalSeedling4, normalFirstGrowth4, normalSecondGrowth4, normalMature4, normalSeedlingWithered4, normalFirstGrowthWithered4, normalSecondGrowthWithered4;
     public Sprite normalSeedling5, normalFirstGrowth5, normalSecondGrowth5, normalMature5, normalSeedlingWithered5, normalFirstGrowthWithered5, normalSecondGrowthWithered5;
-    
+
     public Sprite vineSeedling1, vineFirstGrowth1, vineSecondGrowth1, vineMature1, vineSeedlingWithered1, vineFirstGrowthWithered1, vineSecondGrowthWithered1;
     public Sprite vineSeedling2, vineFirstGrowth2, vineSecondGrowth2, vineMature2, vineSeedlingWithered2, vineFirstGrowthWithered2, vineSecondGrowthWithered2;
 
@@ -34,6 +35,9 @@ public class Plant : MonoBehaviour
     public int plantingCost = 10;
 
     private Image imageComponent;
+
+    public GameObject bugPrefab;
+    public event Action<GrowthStage> OnGrowthStageChanged;
 
     // Flag to indicate if the plant is planted
     public bool isPlanted = false;
@@ -72,9 +76,36 @@ public class Plant : MonoBehaviour
             AdvanceGrowth();
         }
         // Wither if not watered and time passed
-        else if (!isWatered && Time.time - lastWatered >= timeBetweenStages)
+        else if (!isWatered && Time.time - lastWatered >= timeBetweenStages && !normalMature1 && !normalMature2 && !normalMature3 && !normalMature4 && !normalMature5)
         {
             Wither();
+        }
+    }
+
+    // Plant the seed
+    public bool PlantSeed()
+    {
+        if (!CanPlantSeed()) return false;  // Ensure planting is possible
+
+        isPlanted = true;
+        DeductPlantingCost();  // Deduct cost after successful planting
+
+        return true;
+    }
+
+    // Check if the seed can be planted
+    private bool CanPlantSeed()
+    {
+        return true; // Placeholder: Always allows planting for now
+    }
+
+    // Deduct the cost of planting
+    private void DeductPlantingCost()
+    {
+        EconomyManager economyManager = GameObject.Find("Balance").GetComponent<EconomyManager>();
+        if (economyManager != null)
+        {
+            economyManager.AddMoney(-plantingCost); // Deduct planting cost
         }
     }
 
@@ -96,14 +127,44 @@ public class Plant : MonoBehaviour
             currentStage++;
             isWatered = false; // Reset the isWatered flag
             SetImageForCurrentStage();
+
+            // Notify listeners about the growth stage change
+            OnGrowthStageChanged?.Invoke(currentStage); // Trigger the event
+
+            // Randomly attach a bug to the plant
+            if (UnityEngine.Random.Range(0, 100) < 25)  // 25% chance to attach a bug
+            {
+                // The bug is a child of the pot object
+                GameObject bugObject = Instantiate(bugPrefab, transform.position, Quaternion.identity, transform);
+                Bug bug = bugObject.GetComponent<Bug>();  // Get the Bug component from the instantiated object
+                if (bug != null)
+                {
+                    bug.ShowBug(); // Show the bug on the plant
+                    StartCoroutine(WiltPlantAfterTime(5f)); // Start coroutine to wither the plant after 5 seconds
+                }
+            }
         }
+
+    }
+
+    private IEnumerator WiltPlantAfterTime(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+
+        // Wither the plant
+        Wither(); 
     }
 
     // Wither the plant
-    private void Wither()
+    public void Wither()
     {
-        SetWitheredImageForCurrentStage();
-        currentStage = GrowthStage.Withered;
+        if (!normalMature1 && !normalMature2 && !normalMature3 && !normalMature4 && !normalMature5) 
+        {
+            SetWitheredImageForCurrentStage();
+            currentStage = GrowthStage.Withered;
+
+            return;
+        }
     }
 
     // Remove the plant from the game
@@ -176,10 +237,6 @@ public class Plant : MonoBehaviour
         {
             case SeedType.Normal:
                 return GetNormalSpriteByIndex(spriteIndex, stage);
-                break;
-            case SeedType.Vine:
-                return getVineSpriteByIndex(spriteIndex, stage);
-                break;
         }
         return null;
     }
@@ -194,13 +251,6 @@ public class Plant : MonoBehaviour
                 {
                     case GrowthStage.FirstGrowth: return normalFirstGrowthWithered1; // Example, update for random logic
                     case GrowthStage.SecondGrowth: return normalSecondGrowthWithered1;
-                }
-                break;
-            case SeedType.Vine:
-                switch (stage)
-                {
-                    case GrowthStage.FirstGrowth: return vineFirstGrowthWithered1; // Example, update for random logic
-                    case GrowthStage.SecondGrowth: return vineSecondGrowthWithered1;
                 }
                 break;
         }
@@ -227,12 +277,8 @@ public class Plant : MonoBehaviour
         EconomyManager economyManager = GameObject.Find("Balance").GetComponent<EconomyManager>();
         if (economyManager != null)
         {
-            economyManager.AddMoney(15); // Earn $15 when a plant is sold
+            economyManager.AddMoney(25); // Earn $15 when a plant is sold
             Destroy(gameObject);
-        }
-        else
-        {
-            Debug.LogError("EconomyManager not found. Cannot sell plant.");
         }
     }
 

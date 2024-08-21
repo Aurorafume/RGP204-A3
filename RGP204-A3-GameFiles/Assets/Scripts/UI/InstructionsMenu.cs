@@ -5,9 +5,15 @@ using UnityEngine.UI;
 public class InstructionsMenu : MonoBehaviour
 {
     // Load the main game scene
-    public void PlayGame()
+    public void PlayIndoor()
     {
         SceneManager.LoadScene("Main");
+    }
+
+    // Load the outdoor game scene
+    public void PlayOutdoor()
+    {
+        SceneManager.LoadScene("Main Outdoor");
     }
 
     // Return to the main menu

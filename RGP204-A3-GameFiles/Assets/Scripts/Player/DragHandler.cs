@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public enum ItemType { WateringCan, Shovel, PlantSeeds, VineSeeds, Pot }
+    public enum ItemType { WateringCan, Shovel, PlantSeeds, Pot, Pesticide }
     public ItemType itemType;
     public GameObject prefab; // Reference to the prefab
     public static GameObject itemBeingDragged;
@@ -34,8 +34,8 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         if (prefab != null && economyManager != null)
         {
-            // Check if the item is PlantSeeds or VineSeeds and if the player can afford it
-            if ((itemType == ItemType.PlantSeeds || itemType == ItemType.VineSeeds) && economyManager.CanAfford(10))
+            // Check if the item is PlantSeeds and if the player can afford it
+            if ((itemType == ItemType.PlantSeeds) && economyManager.CanAfford(10))
             {
                 economyManager.SubtractMoney(10); // Deduct $10 when seeds are purchased
 
@@ -63,7 +63,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
                 canvasGroup.blocksRaycasts = false;
             }
-            else if (itemType != ItemType.PlantSeeds && itemType != ItemType.VineSeeds)
+            else if (itemType != ItemType.PlantSeeds)
             {
                 if (canvasRectTransform == null || objectsContainer == null)
                 {
@@ -115,7 +115,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         if (itemBeingDragged != null)
         {
             // Handle seed placement in pots
-            if (itemTypeBeingDragged == ItemType.PlantSeeds || itemTypeBeingDragged == ItemType.VineSeeds)
+            if (itemTypeBeingDragged == ItemType.PlantSeeds)
             {
                 Vector2 itemPosition = itemBeingDragged.transform.position;
                 float detectionRadius = 1.0f; // Adjust this radius as necessary
@@ -126,11 +126,11 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 foreach (Collider2D collider in hitColliders)
                 {
                     Plant plant = itemBeingDragged.GetComponent<Plant>();
-
                     if (itemTypeBeingDragged == ItemType.PlantSeeds && collider.CompareTag("Pot"))
                     {
                         if (plant != null)
                         {
+                            plant.bugPrefab = collider.gameObject.GetComponent<Pot>().bugPrefab;
                             plant.seedType = SeedType.Normal;
                             plant.isPlanted = true;
                             plant.SetImageForCurrentStage();
@@ -139,18 +139,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                             break;
                         }
                     }
-                    else if (itemTypeBeingDragged == ItemType.VineSeeds && collider.CompareTag("VinePot"))
-                    {
-                        if (plant != null)
-                        {
-                            plant.seedType = SeedType.Vine;
-                            plant.isPlanted = true;
-                            plant.SetImageForCurrentStage();
-                            SnapToPot(itemBeingDragged.transform, collider);
-                            seedPlaced = true;
-                            break;
-                        }
-                    }
+                    
                 }
 
                 if (!seedPlaced)
@@ -219,6 +208,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                     {
                         // Show the hidden pot
                         hiddenPot.ShowPot();
+                        economyManager.SubtractMoney(5); // Deduct $5 when a pot is placed
 
                         // Destroy the dragged pot (from the shop) since it is now replaced by the scene pot
                         Destroy(itemBeingDragged);
@@ -233,6 +223,30 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                     // If no valid hidden pot was found, return the dragged pot back to its original position or destroy it.
                     Destroy(itemBeingDragged); // Or reset its position if you want to allow re-dragging
                 }
+            } 
+            else if (itemTypeBeingDragged == ItemType.Pesticide)
+            {
+                // Handle pesticide usage
+                Vector2 itemPosition = itemBeingDragged.transform.position;
+                float detectionRadius = 1.0f; // Adjust this radius as necessary
+                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(itemPosition, detectionRadius);
+
+                foreach (Collider2D collider in hitColliders)
+                {   
+                    Bug bug = collider.GetComponent<Bug>();
+
+                    if (bug != null)
+                    {   
+                        economyManager.SubtractMoney(5); // Deduct $5 when pesticide is used
+                        // Apply pesticide and hide the bug
+                        bug.HideBug();
+                        Destroy(itemBeingDragged);
+                        break;
+                    }
+                }
+
+                Destroy(itemBeingDragged);
+            }
             }
             else
             {
@@ -241,14 +255,14 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
             itemBeingDragged = null;
         }
-    }
 
-    // Snap the seed to the pot's position
-    private void SnapToPot(Transform seedTransform, Collider2D potCollider)
-    {
-        float offsetY = potCollider.bounds.size.y / 2; // Calculate the offset to position at the top
-        seedTransform.position = new Vector3(potCollider.bounds.center.x, potCollider.bounds.max.y + offsetY, seedTransform.position.z);
-        seedTransform.SetParent(GameObject.Find("-Objects-").transform); // Set the plant under the "-Objects-" gameobject
+        // Snap the seed to the pot's position
+        private void SnapToPot(Transform seedTransform, Collider2D potCollider)
+        {
+            float offsetY = potCollider.bounds.size.y / 2; // Calculate the offset to position at the top
+            seedTransform.position = new Vector3(potCollider.bounds.center.x, potCollider.bounds.max.y + offsetY, seedTransform.position.z);
+            seedTransform.SetParent(GameObject.Find("-Objects-").transform); // Set the plant under the "-Objects-" gameobject
+        }
     }
+ 
 
-}

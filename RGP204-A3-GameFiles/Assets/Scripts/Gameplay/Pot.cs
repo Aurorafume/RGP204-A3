@@ -1,7 +1,9 @@
 using UnityEngine;
 
 public class Pot : MonoBehaviour
-{
+{   
+    public GameObject bugPrefab;
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         // Check if the object entering the collider is a seed
@@ -34,7 +36,7 @@ public class Pot : MonoBehaviour
     // Assign a random seedling sprite to the plant
     private void AssignRandomSeedling(Plant plant)
     {
-        int randomIndex = UnityEngine.Random.Range(1, 6);
+        int randomIndex = UnityEngine.Random.Range(1, 6); 
         switch (randomIndex)
         {
             case 1:
